@@ -1,5 +1,7 @@
 # PAC-MAN - Terminal Edition
 
+Not So Vibe Coding Journey of Pacman
+
 A recreation of the classic 1980s Pac-Man arcade game for the terminal, with authentic retro graphics using colored block characters.
 
 ## Features
