@@ -4,6 +4,8 @@ Not So Vibe Coding Journey of Pacman
 
 A recreation of the classic 1980s Pac-Man arcade game for the terminal, with authentic retro graphics using colored block characters.
 
+![Pac-Man Game Screenshot](screenshot.png)
+
 ## Features
 
 - **Authentic 1980s arcade graphics** using colored █ blocks
