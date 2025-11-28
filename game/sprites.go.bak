@@ -1,0 +1,222 @@
+package game
+
+import "github.com/gdamore/tcell/v2"
+
+// Sprite pixel data: 0 = transparent, 1 = colored pixel
+// Based on original arcade Pac-Man sprites
+
+// Pac-Man sprites (13x13 pixels) - CIRCULAR with wedge mouth
+// Frame 0: Closed mouth
+var pacmanClosed = [][]int{
+	{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+}
+
+// Frame 1: Half open (RIGHT direction)
+var pacmanRightHalf = [][]int{
+	{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+}
+
+// Frame 2: Wide open (RIGHT direction)
+var pacmanRightOpen = [][]int{
+	{0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+	{1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+	{0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
+}
+
+// Ghost sprite (14x14 pixels) - body pixels
+var ghostBody = [][]int{
+	{0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1},  // Wavy bottom
+	{1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0},
+}
+
+// CreateGhostWithEyes creates a ghost sprite with eyes looking in a direction
+func CreateGhostWithEyes(dir Direction) [][]int {
+	// Copy ghost body
+	sprite := make([][]int, len(ghostBody))
+	for i := range ghostBody {
+		sprite[i] = make([]int, len(ghostBody[i]))
+		copy(sprite[i], ghostBody[i])
+	}
+
+	// Add white eyes (value 2)
+	// Left eye (3x3 white circle)
+	for dy := 0; dy < 3; dy++ {
+		for dx := 0; dx < 3; dx++ {
+			y, x := 4+dy, 3+dx
+			if y < len(sprite) && x < len(sprite[y]) {
+				sprite[y][x] = 2 // White
+			}
+		}
+	}
+	// Right eye (3x3 white circle)
+	for dy := 0; dy < 3; dy++ {
+		for dx := 0; dx < 3; dx++ {
+			y, x := 4+dy, 9+dx
+			if y < len(sprite) && x < len(sprite[y]) {
+				sprite[y][x] = 2 // White
+			}
+		}
+	}
+
+	// Add pupils (value 3 = blue) based on direction
+	var leftPupilX, leftPupilY, rightPupilX, rightPupilY int
+	switch dir {
+	case DirRight:
+		leftPupilX, leftPupilY = 5, 5
+		rightPupilX, rightPupilY = 11, 5
+	case DirLeft:
+		leftPupilX, leftPupilY = 3, 5
+		rightPupilX, rightPupilY = 9, 5
+	case DirUp:
+		leftPupilX, leftPupilY = 4, 4
+		rightPupilX, rightPupilY = 10, 4
+	case DirDown:
+		leftPupilX, leftPupilY = 4, 6
+		rightPupilX, rightPupilY = 10, 6
+	default:
+		leftPupilX, leftPupilY = 4, 5
+		rightPupilX, rightPupilY = 10, 5
+	}
+
+	// Add pupils (2x2 blue squares)
+	for dy := 0; dy < 2; dy++ {
+		for dx := 0; dx < 2; dx++ {
+			if leftPupilY+dy < len(sprite) && leftPupilX+dx < len(sprite[0]) {
+				sprite[leftPupilY+dy][leftPupilX+dx] = 3 // Blue pupil
+			}
+			if rightPupilY+dy < len(sprite) && rightPupilX+dx < len(sprite[0]) {
+				sprite[rightPupilY+dy][rightPupilX+dx] = 3 // Blue pupil
+			}
+		}
+	}
+
+	return sprite
+}
+
+// GetPacmanSprite returns pixel data for Pac-Man based on direction and frame
+func GetPacmanSprite(dir Direction, frame int) [][]int {
+	// Select animation frame (0=closed, 1=half, 2=open)
+	var baseSprite [][]int
+	switch frame {
+	case 0:
+		baseSprite = pacmanClosed
+	case 1:
+		baseSprite = pacmanRightHalf
+	case 2:
+		baseSprite = pacmanRightOpen
+	default:
+		baseSprite = pacmanClosed
+	}
+
+	// Rotate/flip based on direction
+	return rotateSpriteData(baseSprite, dir)
+}
+
+// GetGhostSprite returns pixel data for ghost with eyes
+func GetGhostSprite(frightened bool, dir Direction) [][]int {
+	if frightened {
+		return ghostBody // Frightened ghost (no pupils, just white eyes)
+	}
+	return CreateGhostWithEyes(dir)
+}
+
+// rotateSpriteData rotates sprite pixel data for different directions
+func rotateSpriteData(sprite [][]int, dir Direction) [][]int {
+	size := len(sprite)
+	rotated := make([][]int, size)
+	for i := range rotated {
+		rotated[i] = make([]int, size)
+	}
+
+	switch dir {
+	case DirLeft:
+		// Flip horizontally
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[y][size-1-x] = sprite[y][x]
+			}
+		}
+	case DirUp:
+		// Rotate 90 degrees counter-clockwise
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[size-1-x][y] = sprite[y][x]
+			}
+		}
+	case DirDown:
+		// Rotate 90 degrees clockwise
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[x][size-1-y] = sprite[y][x]
+			}
+		}
+	default: // DirRight or DirNone
+		return sprite
+	}
+
+	return rotated
+}
+
+// RenderSpriteToTerminal renders a sprite with color for display
+// Values: 0=empty, 1=body color, 2=white (eyes), 3=blue (pupils)
+func RenderSpriteToTerminal(sprite [][]int, color tcell.Color, name string) {
+	println("\n" + name + ":")
+	for y := 0; y < len(sprite); y++ {
+		for x := 0; x < len(sprite[y]); x++ {
+			switch sprite[y][x] {
+			case 1:
+				print("█") // Body color
+			case 2:
+				print("○") // White eyes
+			case 3:
+				print("●") // Blue pupils
+			default:
+				print(" ") // Empty
+			}
+		}
+		println()
+	}
+}

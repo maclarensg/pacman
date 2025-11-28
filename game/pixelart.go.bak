@@ -1,0 +1,151 @@
+package game
+
+import "github.com/gdamore/tcell/v2"
+
+// Pixel art sprites - scaled to 7x7 pixels (renders as ~7x4 characters with half-blocks)
+// 0=transparent, 1=body, 2=white(eye), 3=blue(pupil)
+
+// Pac-Man closed (7x7 pixels)
+var pacmanClosedPixels = [][]int{
+	{0, 0, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 0},
+	{1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1},
+	{0, 1, 1, 1, 1, 1, 0},
+	{0, 0, 1, 1, 1, 0, 0},
+}
+
+// Pac-Man open right (7x7 pixels)
+var pacmanOpenRightPixels = [][]int{
+	{0, 0, 1, 1, 0, 0, 0},
+	{0, 1, 1, 1, 0, 0, 0},
+	{1, 1, 1, 0, 0, 0, 0},
+	{1, 1, 0, 0, 0, 0, 0},
+	{1, 1, 1, 0, 0, 0, 0},
+	{0, 1, 1, 1, 0, 0, 0},
+	{0, 0, 1, 1, 0, 0, 0},
+}
+
+// Ghost pixels (7x7)
+var ghostPixels = [][]int{
+	{0, 0, 1, 1, 1, 0, 0},
+	{0, 1, 1, 1, 1, 1, 0},
+	{1, 2, 2, 1, 2, 2, 1},
+	{1, 2, 3, 1, 2, 3, 1},
+	{1, 1, 1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1, 1, 1},
+	{1, 0, 1, 0, 1, 0, 1},
+}
+
+// RenderPixelArt renders pixel art using half-blocks (2 pixels per character)
+func RenderPixelArt(screen tcell.Screen, x, y int, pixels [][]int, bodyColor tcell.Color) {
+	height := len(pixels)
+	if height == 0 {
+		return
+	}
+	width := len(pixels[0])
+
+	for row := 0; row < height; row += 2 {
+		for col := 0; col < width; col++ {
+			topPixel := pixels[row][col]
+			var bottomPixel int
+			if row+1 < height {
+				bottomPixel = pixels[row+1][col]
+			} else {
+				bottomPixel = 0
+			}
+
+			topColor := getPixelColor(topPixel, bodyColor)
+			bottomColor := getPixelColor(bottomPixel, bodyColor)
+
+			char, fg, bg := getHalfBlockChar(topColor, bottomColor)
+
+			style := tcell.StyleDefault.Foreground(fg).Background(bg)
+			screen.SetContent(x+col, y+row/2, char, nil, style)
+		}
+	}
+}
+
+// Convert pixel value to color
+func getPixelColor(pixelVal int, bodyColor tcell.Color) tcell.Color {
+	switch pixelVal {
+	case 1:
+		return bodyColor
+	case 2:
+		return ColorEyeWhite
+	case 3:
+		return ColorEyeBlue
+	default:
+		return ColorBlack
+	}
+}
+
+// Get half-block character and colors for two pixels
+func getHalfBlockChar(topColor, bottomColor tcell.Color) (rune, tcell.Color, tcell.Color) {
+	topBlack := topColor == ColorBlack
+	bottomBlack := bottomColor == ColorBlack
+
+	if topBlack && bottomBlack {
+		return ' ', ColorBlack, ColorBlack
+	} else if topBlack && !bottomBlack {
+		return '▄', bottomColor, ColorBlack
+	} else if !topBlack && bottomBlack {
+		return '▀', topColor, ColorBlack
+	} else if topColor == bottomColor {
+		return '█', topColor, ColorBlack
+	} else {
+		// Different colors - use half block
+		return '▀', topColor, bottomColor
+	}
+}
+
+// Rotate pixel art for different directions
+func rotatePixels(pixels [][]int, dir Direction) [][]int {
+	size := len(pixels)
+	rotated := make([][]int, size)
+	for i := range rotated {
+		rotated[i] = make([]int, size)
+	}
+
+	switch dir {
+	case DirLeft:
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[y][size-1-x] = pixels[y][x]
+			}
+		}
+	case DirUp:
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[size-1-x][y] = pixels[y][x]
+			}
+		}
+	case DirDown:
+		for y := 0; y < size; y++ {
+			for x := 0; x < size; x++ {
+				rotated[x][size-1-y] = pixels[y][x]
+			}
+		}
+	default:
+		return pixels
+	}
+
+	return rotated
+}
+
+// Get Pac-Man pixels based on direction and animation
+func GetPacmanPixels(dir Direction, frame int) [][]int {
+	var base [][]int
+	if frame%2 == 0 {
+		base = pacmanClosedPixels
+	} else {
+		base = pacmanOpenRightPixels
+	}
+	return rotatePixels(base, dir)
+}
+
+// Get ghost pixels
+func GetGhostPixels() [][]int {
+	return ghostPixels
+}
