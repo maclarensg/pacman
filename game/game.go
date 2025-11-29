@@ -407,16 +407,19 @@ func (g *Game) render() {
 	g.renderer.RenderHUD(screen, g.score, g.lives, g.level)
 
 	// Render game over message
-	if g.state == StateGameOver {
+	switch g.state {
+	case StateGameOver:
 		g.renderer.RenderGameOver(screen, false)
-	} else if g.state == StateWin {
+	case StateWin:
 		g.renderer.RenderGameOver(screen, true)
 	}
 
 	// Output to terminal using Sixel
 	fmt.Print("\033[H") // Move cursor to home
 	enc := sixel.NewEncoder(os.Stdout)
-	enc.Encode(screen)
+	if err := enc.Encode(screen); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to encode screen: %v\n", err)
+	}
 
 	// Print HUD below the game screen
 	powerInfo := ""
@@ -426,7 +429,8 @@ func (g *Game) render() {
 	fmt.Printf("\n\033[1;33m SCORE: %-8d LIVES: %d    LEVEL: %d %s FPS: %.1f \033[0m\n", g.score, g.lives, g.level, powerInfo, g.fps)
 
 	// Print game state messages
-	if g.state == StateGameOver {
+	switch g.state {
+	case StateGameOver:
 		fmt.Print("\033[1;31m")
 		fmt.Println("\n ═══════════════════════════════════════")
 		fmt.Println("         GAME OVER!")
@@ -434,7 +438,7 @@ func (g *Game) render() {
 		fmt.Print("\033[1;37m")
 		fmt.Println("   Press R to Retry  |  Q to Quit")
 		fmt.Print("\033[0m")
-	} else if g.state == StateWin {
+	case StateWin:
 		fmt.Print("\033[1;32m")
 		fmt.Println("\n ═══════════════════════════════════════")
 		fmt.Printf("      LEVEL %d COMPLETE!\n", g.level)
@@ -449,7 +453,9 @@ func (g *Game) Cleanup() {
 	// Restore terminal state
 	fmt.Print("\033[?25h")   // Show cursor
 	fmt.Print("\033[?1049l") // Exit alternate screen
-	keyboard.Close()
+	if err := keyboard.Close(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to close keyboard: %v\n", err)
+	}
 }
 
 func (g *Game) renderStartScreen() {

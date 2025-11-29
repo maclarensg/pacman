@@ -431,41 +431,6 @@ func (g *Ghost) chooseReturnDirection(maze *Maze, targetX, targetY int) Directio
 	return g.Dir // Keep current direction if stuck
 }
 
-func (g *Ghost) chooseDirectionToTarget(maze *Maze, targetX, targetY int) Direction {
-	// Simple pathfinding to target with LEFT priority on ties
-	bestDir := g.Dir
-	bestDist := math.MaxFloat64
-
-	// Check LEFT first so it wins on ties (prevents stuck oscillation)
-	for _, dir := range []Direction{DirLeft, DirUp, DirDown, DirRight} {
-		nx, ny := g.X, g.Y
-		switch dir {
-		case DirUp:
-			ny--
-		case DirDown:
-			ny++
-		case DirLeft:
-			nx--
-		case DirRight:
-			nx++
-		}
-
-		if !maze.IsWalkableForGhost(nx, ny) {
-			continue
-		}
-
-		dist := math.Abs(float64(nx-targetX)) + math.Abs(float64(ny-targetY))
-		if dist < bestDist {
-			bestDist = dist
-			bestDir = dir
-		} else if dist == bestDist && dir == g.Dir {
-			// Prefer current direction on ties to prevent oscillation
-			bestDir = dir
-		}
-	}
-	return bestDir
-}
-
 func oppositeDir(dir Direction) Direction {
 	switch dir {
 	case DirUp:
