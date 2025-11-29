@@ -12,22 +12,22 @@ import (
 )
 
 type Game struct {
-	renderer   *Renderer
-	maze       *Maze
-	pacman     *Pacman
-	ghosts     []*Ghost
-	state      GameState
-	score      int
-	lives      int
-	level      int
-	scale      int
-	width      int
-	height     int
-	frame      int
-	fruit      *Fruit
-	fruitTimer int
+	renderer      *Renderer
+	maze          *Maze
+	pacman        *Pacman
+	ghosts        []*Ghost
+	state         GameState
+	score         int
+	lives         int
+	level         int
+	scale         int
+	width         int
+	height        int
+	frame         int
+	fruit         *Fruit
+	fruitTimer    int
 	lastFrameTime time.Time
-	fps        float64
+	fps           float64
 }
 
 // GhostPos stores a ghost's previous position for collision detection

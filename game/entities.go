@@ -7,13 +7,13 @@ import (
 
 // Pacman entity
 type Pacman struct {
-	X, Y          int // Tile position
-	Dir           Direction
-	NextDir       Direction
-	AnimFrame     int
-	MoveTick      int
-	PowerMode     bool
-	PowerTicks    int
+	X, Y       int // Tile position
+	Dir        Direction
+	NextDir    Direction
+	AnimFrame  int
+	MoveTick   int
+	PowerMode  bool
+	PowerTicks int
 }
 
 func NewPacman() *Pacman {
@@ -197,7 +197,7 @@ func (g *Ghost) Update(maze *Maze, pacman *Pacman, level int) {
 	// Movement with speed control - SLOWER when frightened, FASTER at higher levels
 	speed := BaseGhostSpeed
 	if level > 1 {
-		speed = speed - (level - 1) / 3 // Get faster every 3 levels
+		speed = speed - (level-1)/3 // Get faster every 3 levels
 		if speed < 1 {
 			speed = 1
 		}

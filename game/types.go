@@ -37,17 +37,17 @@ var (
 // Game constants
 const (
 	// Pixel-based measurements
-	TileSize        = 8  // Each tile is 8x8 pixels
-	MazeWidthTiles  = 28 // Maze is 28 tiles wide
-	MazeHeightTiles = 31 // Maze is 31 tiles tall
+	TileSize        = 8                          // Each tile is 8x8 pixels
+	MazeWidthTiles  = 28                         // Maze is 28 tiles wide
+	MazeHeightTiles = 31                         // Maze is 31 tiles tall
 	BaseWidth       = MazeWidthTiles * TileSize  // 224 pixels
 	BaseHeight      = MazeHeightTiles * TileSize // 248 pixels
 
 	// Game speed (base values, adjusted by level)
-	TicksPerSecond        = 30 // Reduced from 60 for better Sixel performance
-	BaseMovementSpeed     = 2 // Move every 2 ticks (30 moves per second)
-	BaseGhostSpeed        = 2 // Ghosts same speed
-	AnimationSpeed        = 2 // Animation frame change (every 2 frames = 30fps)
+	TicksPerSecond    = 30 // Reduced from 60 for better Sixel performance
+	BaseMovementSpeed = 2  // Move every 2 ticks (30 moves per second)
+	BaseGhostSpeed    = 2  // Ghosts same speed
+	AnimationSpeed    = 2  // Animation frame change (every 2 frames = 30fps)
 
 	// Computed values (compatibility)
 	MovementSpeed      = BaseMovementSpeed
