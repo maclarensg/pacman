@@ -32,3 +32,13 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Task runner cache
+.task/
+
+# CI/CD artifacts
+gosec-report.txt
+gosec-results.sarif
+coverage.out
+coverage.html
+dist/

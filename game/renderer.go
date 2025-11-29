@@ -220,14 +220,14 @@ func (r *Renderer) rotate90CCW(sprite [][]int) [][]int {
 // Get maze color based on level
 func (r *Renderer) getMazeColor(level int) color.RGBA {
 	colors := []color.RGBA{
-		{33, 33, 255, 255},    // Blue (level 1)
-		{0, 255, 0, 255},      // Green (level 2)
-		{255, 0, 255, 255},    // Magenta (level 3)
-		{255, 165, 0, 255},    // Orange (level 4)
-		{255, 0, 0, 255},      // Red (level 5)
-		{0, 255, 255, 255},    // Cyan (level 6)
-		{255, 255, 0, 255},    // Yellow (level 7)
-		{128, 0, 128, 255},    // Purple (level 8+)
+		{33, 33, 255, 255}, // Blue (level 1)
+		{0, 255, 0, 255},   // Green (level 2)
+		{255, 0, 255, 255}, // Magenta (level 3)
+		{255, 165, 0, 255}, // Orange (level 4)
+		{255, 0, 0, 255},   // Red (level 5)
+		{0, 255, 255, 255}, // Cyan (level 6)
+		{255, 255, 0, 255}, // Yellow (level 7)
+		{128, 0, 128, 255}, // Purple (level 8+)
 	}
 	idx := (level - 1) % len(colors)
 	return colors[idx]

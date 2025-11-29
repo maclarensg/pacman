@@ -7,13 +7,13 @@ import (
 
 // Pacman entity
 type Pacman struct {
-	X, Y          int // Tile position
-	Dir           Direction
-	NextDir       Direction
-	AnimFrame     int
-	MoveTick      int
-	PowerMode     bool
-	PowerTicks    int
+	X, Y       int // Tile position
+	Dir        Direction
+	NextDir    Direction
+	AnimFrame  int
+	MoveTick   int
+	PowerMode  bool
+	PowerTicks int
 }
 
 func NewPacman() *Pacman {
@@ -197,7 +197,7 @@ func (g *Ghost) Update(maze *Maze, pacman *Pacman, level int) {
 	// Movement with speed control - SLOWER when frightened, FASTER at higher levels
 	speed := BaseGhostSpeed
 	if level > 1 {
-		speed = speed - (level - 1) / 3 // Get faster every 3 levels
+		speed = speed - (level-1)/3 // Get faster every 3 levels
 		if speed < 1 {
 			speed = 1
 		}
@@ -429,41 +429,6 @@ func (g *Ghost) chooseReturnDirection(maze *Maze, targetX, targetY int) Directio
 	}
 
 	return g.Dir // Keep current direction if stuck
-}
-
-func (g *Ghost) chooseDirectionToTarget(maze *Maze, targetX, targetY int) Direction {
-	// Simple pathfinding to target with LEFT priority on ties
-	bestDir := g.Dir
-	bestDist := math.MaxFloat64
-
-	// Check LEFT first so it wins on ties (prevents stuck oscillation)
-	for _, dir := range []Direction{DirLeft, DirUp, DirDown, DirRight} {
-		nx, ny := g.X, g.Y
-		switch dir {
-		case DirUp:
-			ny--
-		case DirDown:
-			ny++
-		case DirLeft:
-			nx--
-		case DirRight:
-			nx++
-		}
-
-		if !maze.IsWalkableForGhost(nx, ny) {
-			continue
-		}
-
-		dist := math.Abs(float64(nx-targetX)) + math.Abs(float64(ny-targetY))
-		if dist < bestDist {
-			bestDist = dist
-			bestDir = dir
-		} else if dist == bestDist && dir == g.Dir {
-			// Prefer current direction on ties to prevent oscillation
-			bestDir = dir
-		}
-	}
-	return bestDir
 }
 
 func oppositeDir(dir Direction) Direction {

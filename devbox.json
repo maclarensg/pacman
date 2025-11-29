@@ -2,15 +2,28 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
   "packages": [
     "go@latest",
-    "claude-code@latest"
+    "claude-code@latest",
+    "golangci-lint@latest",
+    "gosec@latest",
+    "go-task@latest"
   ],
   "shell": {
     "init_hook": [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "echo 'Welcome to Pacman devbox!' > /dev/null",
+      "echo 'Available tools: go, golangci-lint, gosec, task' > /dev/null"
     ],
     "scripts": {
       "test": [
-        "echo \"Error: no test specified\" && exit 1"
+        "go test -v -race ./..."
+      ],
+      "lint": [
+        "golangci-lint run --timeout=5m"
+      ],
+      "security": [
+        "gosec ./..."
+      ],
+      "ci": [
+        "task ci"
       ]
     }
   }

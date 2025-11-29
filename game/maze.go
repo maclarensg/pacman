@@ -107,11 +107,12 @@ func (m *Maze) IsWalkableForGhost(x, y int) bool {
 
 func (m *Maze) EatPellet(x, y int) (isPowerPellet bool, ate bool) {
 	cell := m.GetCell(x, y)
-	if cell == CellPellet {
+	switch cell {
+	case CellPellet:
 		m.SetCell(x, y, CellEmpty)
 		m.RemainingPellets--
 		return false, true
-	} else if cell == CellPowerPellet {
+	case CellPowerPellet:
 		m.SetCell(x, y, CellEmpty)
 		m.RemainingPellets--
 		return true, true

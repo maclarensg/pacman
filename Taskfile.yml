@@ -1,0 +1,153 @@
+version: '3'
+
+vars:
+  BINARY_NAME: pacman
+  GO_VERSION: '1.25'
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the pacman binary
+    cmds:
+      - go build -v -o {{.BINARY_NAME}} .
+    sources:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+    generates:
+      - '{{.BINARY_NAME}}'
+
+  build:all:
+    desc: Build binaries for all platforms (Linux, macOS, Windows)
+    cmds:
+      - echo "Building for Linux amd64..."
+      - GOOS=linux GOARCH=amd64 go build -v -o dist/{{.BINARY_NAME}}-linux-amd64 .
+      - echo "Building for Linux arm64..."
+      - GOOS=linux GOARCH=arm64 go build -v -o dist/{{.BINARY_NAME}}-linux-arm64 .
+      - echo "Building for macOS amd64..."
+      - GOOS=darwin GOARCH=amd64 go build -v -o dist/{{.BINARY_NAME}}-darwin-amd64 .
+      - echo "Building for macOS arm64..."
+      - GOOS=darwin GOARCH=arm64 go build -v -o dist/{{.BINARY_NAME}}-darwin-arm64 .
+      - echo "Building for Windows amd64..."
+      - GOOS=windows GOARCH=amd64 go build -v -o dist/{{.BINARY_NAME}}-windows-amd64.exe .
+      - echo "All builds complete!"
+
+  test:
+    desc: Run all tests
+    cmds:
+      - go test -v -race ./...
+
+  test:short:
+    desc: Run tests in short mode
+    cmds:
+      - go test -v -short ./...
+
+  test:verbose:
+    desc: Run tests with verbose output
+    cmds:
+      - go test -v -race -count=1 ./...
+
+  lint:
+    desc: Run golangci-lint
+    cmds:
+      - golangci-lint run --timeout=5m
+
+  lint:fix:
+    desc: Run golangci-lint with auto-fix
+    cmds:
+      - golangci-lint run --fix --timeout=5m
+
+  gosec:
+    desc: Run security scanner (gosec)
+    cmds:
+      - gosec -fmt=text -out=gosec-report.txt ./...
+      - cat gosec-report.txt
+
+  gosec:sarif:
+    desc: Run security scanner and generate SARIF output
+    cmds:
+      - gosec -fmt=sarif -out=gosec-results.sarif ./...
+      - echo "SARIF report generated at gosec-results.sarif"
+
+  format:
+    desc: Format code with gofmt and tidy modules
+    cmds:
+      - gofmt -w -s .
+      - go mod tidy
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  ci:
+    desc: Run full CI pipeline (format, vet, lint, gosec, test, build)
+    cmds:
+      - task: format
+      - task: vet
+      - task: lint
+      - task: gosec
+      - task: test
+      - task: build
+      - echo "✅ All CI checks passed!"
+
+  clean:
+    desc: Clean build artifacts and test files
+    cmds:
+      - rm -f {{.BINARY_NAME}}
+      - rm -rf dist/
+      - rm -f gosec-report.txt gosec-results.sarif
+      - go clean -testcache
+      - echo "Cleaned all build artifacts"
+
+  install:
+    desc: Install the binary to $GOPATH/bin
+    cmds:
+      - go install .
+
+  run:
+    desc: Build and run the game
+    cmds:
+      - task: build
+      - ./{{.BINARY_NAME}}
+
+  deps:
+    desc: Download and tidy dependencies
+    cmds:
+      - go mod download
+      - go mod tidy
+      - go mod verify
+      - echo "Dependencies updated and verified"
+
+  deps:update:
+    desc: Update all dependencies to latest versions
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+      - echo "Dependencies updated to latest versions"
+
+  check:
+    desc: Quick check (vet + lint)
+    cmds:
+      - task: vet
+      - task: lint
+
+  pre-commit:
+    desc: Run pre-commit checks (format, vet, lint, test)
+    cmds:
+      - task: format
+      - task: vet
+      - task: lint
+      - task: test
+      - echo "✅ Pre-commit checks passed!"
+
+  release:check:
+    desc: Verify release readiness (CI + build all platforms)
+    cmds:
+      - task: ci
+      - task: build:all
+      - echo "✅ Release checks passed! Ready to create a release."
